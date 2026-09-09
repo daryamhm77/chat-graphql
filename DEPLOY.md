@@ -64,8 +64,8 @@ The backend speaks **S3-compatible** APIs (`MINIO_*` env names — works with an
 
 Create **two buckets** and make them **publicly readable** (this app builds public URLs; signed URLs are not implemented yet):
 
-- `chatter-users`
-- `chatter-messages`
+- `chat-users`
+- `chat-messages`
 
 | Env | Meaning |
 |---|---|
@@ -78,8 +78,8 @@ Create **two buckets** and make them **publicly readable** (this app builds publ
 | `MINIO_MESSAGES_ACCESS_KEY` | Access key for `MINIO_MESSAGES_BUCKET` (optional) |
 | `MINIO_MESSAGES_SECRET_KEY` | Secret key for `MINIO_MESSAGES_BUCKET` (optional) |
 | `MINIO_REGION` | Usually `us-east-1` |
-| `MINIO_USERS_BUCKET` | `chatter-users` |
-| `MINIO_MESSAGES_BUCKET` | `chatter-messages` |
+| `MINIO_USERS_BUCKET` | `chat-users` |
+| `MINIO_MESSAGES_BUCKET` | `chat-messages` |
 
 Public file URL shape:
 
@@ -94,8 +94,8 @@ Public file URL shape:
 
 Steps:
 
-1. Sign up → create buckets `chatter-users` and `chatter-messages`.
-2. Create S3 access keys in the dashboard.
+1. Sign up → create buckets `chat-users` and `chat-messages`.
+2. Create S3 access keys in the dashboard (shared or one pair per bucket).
 3. Enable **public / anonymous read** on both buckets (or equivalent “download” policy).
 4. Env example:
 
@@ -111,8 +111,8 @@ MINIO_SECRET_KEY=...
 # MINIO_MESSAGES_ACCESS_KEY=...
 # MINIO_MESSAGES_SECRET_KEY=...
 MINIO_REGION=us-east-1
-MINIO_USERS_BUCKET=chatter-users
-MINIO_MESSAGES_BUCKET=chatter-messages
+MINIO_USERS_BUCKET=chat-users
+MINIO_MESSAGES_BUCKET=chat-messages
 ```
 
 If Synclyz gives a different public/CDN base URL in the dashboard, use that for `MINIO_PUBLIC_URL`.
@@ -148,7 +148,14 @@ Use `chat-backend/docker-compose.yml` for local MinIO. Do **not** rely on epheme
 
 > Prefer **Docker** (not native Node) so `bcrypt` native builds stay reliable — `chat-backend/Dockerfile` already handles this.
 
-Optional: use the repo Blueprint [`render.yaml`](./render.yaml) via **New → Blueprint** to prefill the service.
+Optional (recommended): deploy from the Blueprint file [`render.yaml`](./render.yaml):
+
+1. Push `render.yaml` to GitHub (repo root).
+2. Render → **New** → **Blueprint** → select this repo.
+3. Fill prompted secrets (`MONGODB_URI`, Redis, MinIO/S3 keys, `FRONTEND_URL`).
+4. Create Blueprint → wait for `chatter-api` to go live.
+
+> Render requires the filename `render.yaml` (not `render.yml`).
 
 ### 4.2 Environment variables (Render)
 
@@ -182,11 +189,11 @@ MINIO_SECRET_KEY=...
 # MINIO_MESSAGES_ACCESS_KEY=...
 # MINIO_MESSAGES_SECRET_KEY=...
 MINIO_REGION=us-east-1
-MINIO_USERS_BUCKET=chatter-users
-MINIO_MESSAGES_BUCKET=chatter-messages
+MINIO_USERS_BUCKET=chat-users
+MINIO_MESSAGES_BUCKET=chat-messages
 ```
 
-Generate a strong `JWT_SECRET`:
+Generate a strong `JWT_SECRET` (Blueprint can auto-generate this):
 
 ```bash
 openssl rand -base64 48

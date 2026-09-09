@@ -1,42 +1,54 @@
 # Render Blueprint — Chatter API
-# Docs: https://render.com/docs/blueprint-spec
+# https://render.com/docs/blueprint-spec
 #
-# New → Blueprint → connect this repo.
-# After create, fill secrets in the Render dashboard (values below are placeholders).
+# Deploy:
+# 1. Push this file to GitHub (repo root)
+# 2. Render Dashboard → New → Blueprint
+# 3. Select this repo / branch
+# 4. Fill prompted secrets (sync: false vars)
+#
+# Note: Render requires the filename `render.yaml` (not render.yml).
 
 services:
   - type: web
     name: chatter-api
     runtime: docker
     plan: free
+    region: oregon
     rootDir: chat-backend
     dockerfilePath: ./Dockerfile
+    dockerContext: .
     healthCheckPath: /api
+    autoDeploy: true
     envVars:
+      # Non-secret defaults
       - key: NODE_ENV
         value: production
       - key: COOKIE_SECURE
         value: "true"
       - key: JWT_EXPIRATION
         value: "604800"
+      - key: REDIS_TLS
+        value: "true"
+      - key: REDIS_PORT
+        value: "6379"
       - key: MINIO_REGION
         value: us-east-1
       - key: MINIO_USERS_BUCKET
-        value: chatter-users
+        value: chat-users
       - key: MINIO_MESSAGES_BUCKET
-        value: chatter-messages
-      - key: REDIS_TLS
-        value: "true"
-      # Set these in the dashboard (do not commit real secrets):
-      - key: MONGODB_URI
-        sync: false
+        value: chat-messages
+
+      # Auto-generated secret (set once on first sync)
       - key: JWT_SECRET
+        generateValue: true
+
+      # Fill these in the Render dashboard when creating the Blueprint
+      - key: MONGODB_URI
         sync: false
       - key: FRONTEND_URL
         sync: false
       - key: REDIS_HOST
-        sync: false
-      - key: REDIS_PORT
         sync: false
       - key: REDIS_PASSWORD
         sync: false
@@ -44,7 +56,19 @@ services:
         sync: false
       - key: MINIO_PUBLIC_URL
         sync: false
+
+      # Option A — one shared S3 key for both buckets
       - key: MINIO_ACCESS_KEY
         sync: false
       - key: MINIO_SECRET_KEY
+        sync: false
+
+      # Option B — separate keys per bucket (preferred if Synclyz gave you two pairs)
+      - key: MINIO_USERS_ACCESS_KEY
+        sync: false
+      - key: MINIO_USERS_SECRET_KEY
+        sync: false
+      - key: MINIO_MESSAGES_ACCESS_KEY
+        sync: false
+      - key: MINIO_MESSAGES_SECRET_KEY
         sync: false

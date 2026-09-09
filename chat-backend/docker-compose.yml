@@ -1,0 +1,99 @@
+services:
+  mongo:
+    image: mongo:8
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    environment:
+      # Bypass MongoDB 8 / Linux kernel 6.19+ TCMalloc startup guard (Docker Desktop)
+      GLIBC_TUNABLES: glibc.pthread.rseq=1
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ['CMD', 'mongosh', '--eval', 'db.adminCommand("ping")']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 minioadmin minioadmin;
+      mc mb -p local/chatter-users || true;
+      mc anonymous set download local/chatter-users;
+      mc mb -p local/chatter-messages || true;
+      mc anonymous set download local/chatter-messages;
+      exit 0;
+      "
+
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      PORT: 3000
+      MONGODB_URI: mongodb://mongo:27017/chatter
+      JWT_SECRET: ${JWT_SECRET:-changeme}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-3600}
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_PUBLIC_URL: http://localhost:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_REGION: us-east-1
+      MINIO_USERS_BUCKET: chatter-users
+      MINIO_MESSAGES_BUCKET: chatter-messages
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      mongo:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_started
+      minio-init:
+        condition: service_completed_successfully
+
+volumes:
+  mongo_data:
+  redis_data:
+  minio_data:

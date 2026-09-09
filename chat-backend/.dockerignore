@@ -1,0 +1,8 @@
+# compiled output
+/dist
+/node_modules
+.git
+coverage
+.env
+*.md
+npm-debug.log*

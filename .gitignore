@@ -1,0 +1,40 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/
+*.sw?
+*.suo
+
+# Env / secrets (never commit)
+.env
+.env.*
+!.env.example
+
+# Dependencies & build
+node_modules/
+dist/
+dist-ssr/
+build/
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Yarn (Berry) — keep config, ignore local cache
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
+# Cursor / local tooling
+.cursor/

@@ -4,7 +4,7 @@ Monorepo for a realtime messaging app: NestJS GraphQL API + React SPA.
 
 | App | Folder | Deploy |
 |---|---|---|
-| Backend API | [`chat-backend/`](./chat-backend) | [Koyeb](https://www.koyeb.com) |
+| Backend API | [`chat-backend/`](./chat-backend) | [Render](https://render.com) (free Web Service) |
 | Frontend | [`chat-front/`](./chat-front) | [Vercel](https://vercel.com) |
 
 Full deploy steps: [`DEPLOY.md`](./DEPLOY.md)
@@ -25,7 +25,7 @@ Chatter lets users sign up, log in, and message in **direct** (1:1) and **group*
 - **Realtime messaging** — new messages appear live via GraphQL subscriptions (Redis pub/sub)
 - **Unread notifications** — unread counts for Direct / Group / total; mark chat as read
 - **Header navigation** — separate Direct and Group sections with unread badges
-- **Attachments** — message file uploads to S3-compatible storage (MinIO / R2 / S3)
+- **Attachments** — message file uploads to S3-compatible storage (MinIO / Synclyz / Gozunga / R2 / S3)
 - **Profile** — user profile and avatar upload
 - **Infinite scroll** — paginated chat list and message history
 
@@ -63,8 +63,8 @@ Chatter lets users sign up, log in, and message in **direct** (1:1) and **group*
 
 - **MongoDB Atlas** — primary data store  
 - **Redis** (e.g. Upstash) — subscription fan-out  
-- **Object storage** — avatars and message attachments  
-- **Koyeb** — backend Docker deploy  
+- **Object storage** — free no-card options: Synclyz / Gozunga (or MinIO locally)  
+- **Render** — backend Docker deploy (free tier)  
 - **Vercel** — frontend static/SPA deploy  
 
 ---
@@ -117,8 +117,8 @@ Set the frontend env to point at your local API (see `chat-front/.env.example`).
 
 See **[DEPLOY.md](./DEPLOY.md)** for:
 
-1. MongoDB Atlas, Redis, and object storage setup  
-2. Backend on **Koyeb** (Dockerfile in `chat-backend/`)  
+1. MongoDB Atlas, Redis, and **free no-card** object storage (Synclyz / Gozunga)  
+2. Backend on **Render** (Docker, root `chat-backend`, optional [`render.yaml`](./render.yaml))  
 3. Frontend on **Vercel** (root directory `chat-front`)  
 4. CORS / cookie / env wiring between the two  
 

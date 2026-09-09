@@ -1,0 +1,50 @@
+# Render Blueprint — Chatter API
+# Docs: https://render.com/docs/blueprint-spec
+#
+# New → Blueprint → connect this repo.
+# After create, fill secrets in the Render dashboard (values below are placeholders).
+
+services:
+  - type: web
+    name: chatter-api
+    runtime: docker
+    plan: free
+    rootDir: chat-backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: JWT_EXPIRATION
+        value: "604800"
+      - key: MINIO_REGION
+        value: us-east-1
+      - key: MINIO_USERS_BUCKET
+        value: chatter-users
+      - key: MINIO_MESSAGES_BUCKET
+        value: chatter-messages
+      - key: REDIS_TLS
+        value: "true"
+      # Set these in the dashboard (do not commit real secrets):
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: REDIS_HOST
+        sync: false
+      - key: REDIS_PORT
+        sync: false
+      - key: REDIS_PASSWORD
+        sync: false
+      - key: MINIO_ENDPOINT
+        sync: false
+      - key: MINIO_PUBLIC_URL
+        sync: false
+      - key: MINIO_ACCESS_KEY
+        sync: false
+      - key: MINIO_SECRET_KEY
+        sync: false
